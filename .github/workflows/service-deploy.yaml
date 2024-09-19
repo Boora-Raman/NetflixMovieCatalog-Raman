@@ -60,5 +60,5 @@ jobs:
           sudo docker pull $DOCKER_USERNAME/netflix-backend:$IMAGE_TAG
           
           # Run the new Docker image with environment variable
-          sudo docker run -d --name netflix-backend -p 3000:3000 -e MOVIE_CATALOG_SERVICE=http://localhost:8080 $DOCKER_USERNAME/netflix-backend:$IMAGE_TAG
+          sudo docker run -d --name netflix-backend -p 8080:8080 $DOCKER_USERNAME/netflix-backend:$IMAGE_TAG
         EOF
