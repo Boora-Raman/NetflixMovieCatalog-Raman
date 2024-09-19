@@ -1,19 +1,10 @@
-sudo apt update
 
-cd ./NetflixMovieCatalog
+sudo systemctl stop netflix-app-test.service
 
-source .venv/bin/activate
+sudo systemctl enable netflix-app-test.service
 
-cd ..
+sudo systemctl start netflix-app-test.service
 
-sudo systemctl stop simplepy.service
-
-sudo systemctl enable simplepy.service
-
-sudo systemctl start simplepy.service
-
-sudo apt update
 
 sudo systemctl start nginx
 
-sudo apt update
