@@ -23,11 +23,15 @@ jobs:
     - name: Set up Python environment
       run: |
         python -m pip install --upgrade pip
-        pip install flake8
+        pip install flake8 black
 
     - name: Run flake8
       run: |
-        flake8 app.py  # Adjust this to include all relevant files for checking
+        flake8 .  # Run flake8 on the whole repository
+
+    - name: Format code with black
+      run: |
+        black .  # Format all Python files in the repository
 
     - name: Build Docker image
       run: |
