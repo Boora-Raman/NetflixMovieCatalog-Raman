@@ -28,7 +28,6 @@ jobs:
     - name: Run flake8
       run: |
         flake8 app.py  # Adjust this to include all relevant files for checking
-        flake8 another_file.py  # Add additional files as needed
 
     - name: Build Docker image
       run: |
