@@ -24,9 +24,9 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install flask
+        # Run app.py in the background and wait for it to start
         nohup python app.py &
         sleep 30
-
 
     - name: Build Docker image
       run: |
@@ -48,9 +48,17 @@ jobs:
         chmod 600 mykey.pem
         scp -o StrictHostKeyChecking=no -i mykey.pem -r * ubuntu@$EC2_PUBLIC_IP:~/NetflixMovieCatalog/
 
-    - name: Run deployment script on EC2
+    - name: Deploy Docker image on EC2
       run: |
         ssh -i mykey.pem ubuntu@$EC2_PUBLIC_IP << 'EOF'
-          cd ~/NetflixMovieCatalog
-          bash deploy.sh
+          # Stop and remove any existing container
+          sudo docker stop netflix-backend || true
+          sudo docker rm netflix-backend || true
+          
+          # Pull the latest image
+          IMAGE_TAG="${{ github.sha }}"
+          sudo docker pull $DOCKER_USERNAME/netflix-backend:$IMAGE_TAG
+          
+          # Run the new Docker image with environment variable
+          sudo docker run -d --name netflix-backend -p 3000:3000 -e MOVIE_CATALOG_SERVICE=http://localhost:8080 $DOCKER_USERNAME/netflix-backend:$IMAGE_TAG
         EOF
