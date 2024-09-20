@@ -16,7 +16,7 @@ with open('data/data_movies.json', 'r') as f:
 
 @app.route("/", methods=['GET'])
 def home():
-    return "Hi! This app is an API, there is no UI in this app so dont look for ui so stop worrying for now at least;-)"
+    return "Hi! This app is an API, there is no UI in this app so dont look for ui Just Work Normally;-)"
 
 
 @app.route('/discover')
@@ -64,7 +64,7 @@ def update_popularity():
 
 @app.route('/status')
 def status():
-    return 'OK everything is correctly working'
+    return 'OK everything is correctly working like as expected'
 
 
 if __name__ == '__main__':
