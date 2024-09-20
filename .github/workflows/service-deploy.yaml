@@ -42,23 +42,30 @@ jobs:
         IMAGE_TAG="${{ github.sha }}"
         docker push $DOCKER_USERNAME/netflix-backend:$IMAGE_TAG
 
-    - name: Copy application files to EC2
+    - name: Copy SSH key to GitHub runner
       run: |
         echo "$SSH_PRIVATE_KEY" > mykey.pem
         chmod 600 mykey.pem
-        # scp -i mykey.pem -r * ubuntu@$EC2_PUBLIC_IP:/home/ubuntu/
 
     - name: Deploy Docker image on EC2
       run: |
-        ssh -o StrictHostKeyChecking=no -i mykey.pem admin@$EC2_PUBLIC_IP << 'EOF'
-          # Stop and remove any existing container
-          sudo docker stop netflix-backend || true
-          sudo docker rm netflix-backend || true
-          
-          # Pull the latest image
-          IMAGE_TAG="${{ github.sha }}"
-          sudo docker pull $DOCKER_USERNAME/netflix-backend:$IMAGE_TAG
-          
-          # Run the new Docker image with environment variable
-          sudo docker run -d --name netflix-backend -p 8080:8080 $DOCKER_USERNAME/netflix-backend:$IMAGE_TAG
+        # Define the IMAGE_TAG in GitHub Actions runner
+        IMAGE_TAG="${{ github.sha }}"
+
+        # SSH into EC2 and run commands
+        ssh -o StrictHostKeyChecking=no -i mykey.pem admin@$EC2_PUBLIC_IP << EOF
+          # Set the image tag inside the EC2 instance
+          IMAGE_TAG=$IMAGE_TAG
+
+          # Stop and remove the existing container if it exists
+          if sudo docker ps -a --format '{{.Names}}' | grep -Eq "^netflix-backend\$"; then
+            sudo docker stop netflix-backend || true
+            sudo docker rm netflix-backend || true
+          fi
+
+          # Pull the latest Docker image from Docker Hub
+          sudo docker pull $DOCKER_USERNAME/netflix-backend:\$IMAGE_TAG
+
+          # Run a new container with the pulled image
+          sudo docker run -d --name netflix-backend -p 8080:8080 $DOCKER_USERNAME/netflix-backend:\$IMAGE_TAG
         EOF
